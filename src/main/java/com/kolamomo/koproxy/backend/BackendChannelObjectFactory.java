@@ -1,3 +1,4 @@
+/*
 package com.kolamomo.koproxy.backend;
 
 import org.apache.commons.pool.BasePoolableObjectFactory;
@@ -7,9 +8,11 @@ import java.util.Timer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+*/
 /**
  * Created by jiangchao on 16/2/20.
- */
+ *//*
+
 class BackendChannelObjectFactory extends BasePoolableObjectFactory {
 
     private final String host;
@@ -73,11 +76,13 @@ class BackendChannelObjectFactory extends BasePoolableObjectFactory {
         }
     }
 
-    /*
+    */
+/*
      * (non-Javadoc)
      *
      * @see org.apache.commons.pool.BasePoolableObjectFactory#makeObject()
-     */
+     *//*
+
     @Override
     public Object makeObject() throws Exception {
 
@@ -135,3 +140,4 @@ class BackendChannelObjectFactory extends BasePoolableObjectFactory {
     }
 
 }
+*/

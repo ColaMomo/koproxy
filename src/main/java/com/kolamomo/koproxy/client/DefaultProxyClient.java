@@ -1,5 +1,6 @@
 package com.kolamomo.koproxy.client;
 
+import com.kolamomo.koproxy.server.DefaultProxyServerHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,7 +27,7 @@ public class DefaultProxyClient {
                 ch.config().setAllocator(new PooledByteBufAllocator());
                 ch.pipeline().addLast(new HttpRequestEncoder());
                 ch.pipeline().addLast(new HttpResponseDecoder());
-                ch.pipeline().addLast(new HttpClientHandler2(host, uri, ctx));
+                ch.pipeline().addLast(new DefaultProxyServerHandler());
             }
         });
         return b;

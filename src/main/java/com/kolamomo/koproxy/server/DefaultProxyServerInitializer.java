@@ -17,7 +17,7 @@ public class DefaultProxyServerInitializer extends ChannelInitializer<SocketChan
         //create a default pipeline implementation
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast("decoder", new HttpRequestDecoder());
-        pipeline.addLast("aggregator", new HttpObjectAggregator(1024));
+        pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("encoder", new HttpResponseEncoder());
         pipeline.addLast("deflater", new HttpContentCompressor());
         pipeline.addLast("handler", new DefaultProxyServerHandler());

@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by jiangchao on 16/2/18.
  */
-public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<Object> {
+public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private HttpRequest request;
     private ByteBuf buffer_body = UnpooledByteBufAllocator.DEFAULT.buffer();
@@ -26,39 +26,14 @@ public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<Objec
     private StringBuffer sb_debug = new StringBuffer();
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, Object msg)
+    protected void messageReceived(ChannelHandlerContext ctx, FullHttpRequest msg)
             throws Exception {
         ApiLogger.info("messageReceived");
-    }
-    @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        // TODO Auto-generated method stub
-        super.channelRegistered(ctx);
-        ApiLogger.info("[channelRegistered]");
-    }
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // TODO Auto-generated method stub
-        super.channelActive(ctx);
-    }
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        // TODO Auto-generated method stub
-        super.channelInactive(ctx);
-    }
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg)
-            throws Exception {
-        // TODO Auto-generated method stub
-        super.channelRead(ctx, msg);
+
         try {
             ApiLogger.info("111");
-            if ((msg instanceof HttpMessage) && HttpHeaderUtil.is100ContinueExpected((HttpMessage) msg)) {
-                ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
-            }
+            ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
             ApiLogger.info("222");
-
-            if (msg instanceof HttpRequest) {
                 ApiLogger.info("333");
 
                 this.request = (HttpRequest)msg;
@@ -75,11 +50,8 @@ public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<Objec
                 }
                 sb_debug.append("\n");
 
-            } else if (msg instanceof HttpContent) {
-                ApiLogger.info("444");
 
-                HttpContent content = (HttpContent) msg;
-                ByteBuf thisContent = content.content();
+                ByteBuf thisContent = msg.content();
                 if (thisContent.isReadable()) {
                     buffer_body.writeBytes(thisContent);
                 }
@@ -98,24 +70,31 @@ public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<Objec
                     sb_debug.append("\n<< HTTP REQUEST -----------");
                 }
 
-            } else {
-                ApiLogger.info("555" + msg.getClass());
+            writeJSON(ctx, HttpResponseStatus.OK, Unpooled.copiedBuffer("{}", CharsetUtil.UTF_8));
 
-            }
+
         } catch (Exception e) {
             ApiLogger.error("exception, e: " + e.getMessage());
         } finally {
 
         }
+
     }
-
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
-
-        //this point is Business logic started
-        writeJSON(ctx, HttpResponseStatus.OK, Unpooled.copiedBuffer("{}", CharsetUtil.UTF_8));
-        ctx.flush();
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        // TODO Auto-generated method stub
+        super.channelRegistered(ctx);
+        ApiLogger.info("[channelRegistered]");
+    }
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        // TODO Auto-generated method stub
+        super.channelActive(ctx);
+    }
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // TODO Auto-generated method stub
+        super.channelInactive(ctx);
     }
     private void writeJSON(ChannelHandlerContext ctx, HttpResponseStatus status,
                            ByteBuf content/*, boolean isKeepAlive*/) {
@@ -132,7 +111,7 @@ public class DefaultProxyServerHandler extends SimpleChannelInboundHandler<Objec
             }
 
             //not keep-alive
-            ctx.write(msg).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(msg).addListener(ChannelFutureListener.CLOSE);
         }
 
     }
